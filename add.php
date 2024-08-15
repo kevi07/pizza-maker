@@ -1,6 +1,6 @@
 <?php 
 
-
+   include('config/db_connect.php');
    $errors = array('email' => '' , 'title' => '', 'ingredients' => '');
    $email = $title = $ingredients = '';
 
@@ -32,10 +32,34 @@
          $errors['ingredients'] = 'ingredients are required <br />';
       } else {
          $ingredients = $_POST['ingredients'];
-         if (!preg_match('/^[a-zA-Z]+$/', $ingredients)) {
+         if (!preg_match('/^([a-zA-Z\s]+)(,\s*[a-zA-Z\s]*)*$/', $ingredients)) {
            $errors['ingredients'] =  'Ingredients must be comma seperated';
          }
       }
+
+      if (array_filter($errors)) {
+         // echo 'echo errors in the form'
+      } else {
+
+         $email = mysqli_real_escape_string($conn,$_POST['email']);
+         $title = mysqli_real_escape_string($conn,$_POST['title']);
+         $ingredients = mysqli_real_escape_string($conn,$_POST['ingredients']);
+
+         // create sql
+         $sql = "INSERT INTO pizzas(email,title,ingredients) VALUES ('$email','$title','$ingredients')";
+
+         //save to db and check
+         if (mysqli_query($conn, $sql)) {
+            // success
+            header('location:index.php');
+         } else {
+            //error
+            echo 'query error' . mysqli_error($conn);
+         }
+         
+      }
+
+
    }
 
 
